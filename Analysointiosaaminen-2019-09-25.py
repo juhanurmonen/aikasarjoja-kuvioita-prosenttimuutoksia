@@ -225,3 +225,89 @@ ax3.set_title('Osakkeen ja markkinoiden päätöskurssien päivämuutokset')
 
 ax3.set_xlabel('Tarkasteluaika')
 
+
+# ### Lasketaan vielä muitakin tunnuslukuja muutoksista
+
+# In[55]:
+
+
+##### Tunnuslukuja muutosprosenteille
+
+muutokset.describe()
+
+
+# In[59]:
+
+
+##### Etsitään ja tulostetaan päivät, jolloin muutosprosentti on ollut suurempi kuin 6 %
+
+muutokset[(abs(muutokset['Osakkeen muutos%'])>0.06) | 
+          (abs(muutokset['Markkinoiden muutos%'])>0.06)]
+
+
+# ### Tutkitaan, vaikuttaako viikonpäivä tuottoprosenttiin
+
+# In[61]:
+
+
+##### Tehdään viikonpäiville ensin oma sarake, 0=maanantai jne.
+
+muutokset['Weekday'] = muutokset.index.weekday
+
+##### Lasketaan osakkeen tunnuslukuja viikonpäivittäin
+
+muutokset.groupby('Weekday')['Osakkeen muutos%'].describe()
+
+
+# In[62]:
+
+
+##### Lasketaan markkinoiden tunnuslukuja viikonpäivittäin
+
+muutokset.groupby('Weekday')['Markkinoiden muutos%'].describe()
+
+
+# ### Muutosprosenttien välinen korrelaatio
+
+# In[63]:
+
+
+##### Lasketaan tarkasteltavan osakkeen ja markkinoiden muutosprosenttien korrelaatio
+
+muutokset.corr()
+
+
+# In[66]:
+
+
+##### Katsotaan tilannetta myös hajontakaaviossa
+
+muutokset.plot.scatter(x = 'Markkinoiden muutos%', y = 'Osakkeen muutos%')
+
+
+# In[67]:
+
+
+##### Liukuva korrelaatio kertoo, miten muutosprosentit korreloivat eri aikoina
+
+muutokset['Markkinoiden muutos%'].rolling(100).corr(muutokset['Osakkeen muutos%']).plot()
+
+
+# ### Lasketaan vielä liukuva volatiliteetti
+
+# #### Volatiliteetti kuvaa arvopaperimarkkinoilla kokonaisriskiä
+# #### Lasketaan ja piirretään, miten riski on vaihdellut tarkastuaikana
+
+# In[68]:
+
+
+##### Markkinoiden muutokset
+
+(muutokset['Markkinoiden muutos%'].rolling(254).std()*(254**0.5)).plot(label='Markkinat', legend=True)
+
+##### Osakkeen muutokset
+
+(muutokset['Osakkeen muutos%'].rolling(254).std()*(254**0.5)).plot(label='Osake', legend=True)
+
+
+# #### Ja paljon muuta, ks. tilastoapu.wordpress.com/python
